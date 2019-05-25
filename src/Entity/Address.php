@@ -57,7 +57,7 @@ class Address
     private $phonenumber;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="string", length=255)
      */
     private $birthday;
 
@@ -167,12 +167,12 @@ class Address
         return $this;
     }
 
-    public function getBirthday(): ?\DateTimeInterface
+    public function getBirthday(): ?string
     {
         return $this->birthday;
     }
 
-    public function setBirthday(\DateTimeInterface $birthday): self
+    public function setBirthday(string $birthday): self
     {
         $this->birthday = $birthday;
 
