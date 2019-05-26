@@ -99,6 +99,76 @@ class AddressBookController extends Controller
     }
 
     /**
+     * @Route("/edit/{id}", name="edit_address")
+     */
+    public function edit(Address $address, Request $request)
+    {
+        $form = $this->createForm(AddressType::class, $address);
+
+        $old_address = clone $address;
+
+        $form->handleRequest($request);
+
+        $updated_address = $address;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $updated_address = $form->getData();
+            // dump($old_address->getPicture());die();
+            if ( ! $request->get('delete_picture', false)) {
+                $updated_address->setPicture($old_address->getPicture());
+            } else {
+                $updated_address->setPicture(null);
+
+                $old_picture = $this->getParameter('pictures_directory') . $old_address->getPicture();
+                if ($old_address->getPicture() && $this->fileSystem->exists($old_picture)) {
+                    $this->fileSystem->remove(array($old_picture));
+                }
+            }
+
+            if ($picture_file = $form->get('picture')->getData()) {
+
+                $file_name = md5(uniqid()).'.'.$picture_file->guessExtension();
+
+                try {
+                    $picture_file->move(
+                        $this->getParameter('pictures_directory'),
+                        $file_name
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash(
+                        'error',
+                        'An error occurred while upload the image!'
+                    );
+
+                    return $this->redirectToRoute('home');
+                }
+
+                $old_picture = $this->getParameter('pictures_directory') . $old_address->getPicture();
+                if ($old_address->getPicture() && $this->fileSystem->exists($old_picture)) {
+                    $this->fileSystem->remove(array($old_picture));
+                }
+
+                $updated_address->setPicture($file_name);
+            }
+
+            $this->em->persist($updated_address);
+            $this->em->flush();
+
+            $this->addFlash(
+                'success',
+                'The address is updated successfully!'
+            );
+
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('address_book/edit.html.twig', [
+            'form' => $form->createView(),
+            'address' => $updated_address
+        ]);
+    }
+
+    /**
      * @Route("/delete/{id}", name="delete_address", methods={"POST"})
      */
     public function delete(Address $address)

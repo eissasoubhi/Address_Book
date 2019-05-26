@@ -15,7 +15,7 @@ class AddressType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('picture', FileType::class, ['required' => false ])
+        $builder->add('picture', FileType::class, ['required' => false, 'data_class' => null ])
         ->add('firstname', TextType::class, ['label' => 'First name'])
         ->add('lastname', TextType::class, ['label' => 'Last name'])
         ->add('streetnumber', TextType::class, ['label' => 'Street and number'])

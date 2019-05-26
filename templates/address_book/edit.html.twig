@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>Edit address</h1>
+        {{ form_start(form, {
+            attr: {'class': 'mt-4'}
+        }) }}
+            {{ form_errors(form) }}
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-8">
+                                {{ form_label(form.picture) }}
+                                {{ form_widget(form.picture) }}
+                                <small class="form-text text-muted">
+                                    Allowed fotrmats are jpg,jpeg and png. and maximum size is 1Mb.
+                                </small>
+                            </div>
+                            <div class="col-4">
+                                {% if address.picture != '' %}
+                                    <img src="{{ asset('pictures/' ~ address.picture) }}" class="address_picture img-thumbnail">
+                                    <div class="form-check delete_picture">
+                                      <input class="form-check-input" type="checkbox" name="delete_picture" id="delete_picture_input">
+                                      <label class="form-check-label" for="delete_picture_input">
+                                        Delete
+                                      </label>
+                                    </div>
+
+                                {% else %}
+                                    <img src="{{ 'https://ui-avatars.com/api/?background=343a40&color=fff&name=' ~ address.firstname ~ '+' ~ address.lastname }}" >
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {{ form_row(form.firstname) }}
+                    {{ form_row(form.lastname) }}
+                    {{ form_row(form.streetnumber) }}
+                    {{ form_row(form.city) }}
+                </div>
+                <div class="col-6">
+                    {{ form_row(form.zip) }}
+                    {{ form_row(form.country) }}
+                    {{ form_row(form.phonenumber) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.birthDay) }}
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                {{ form_row(form.save, { 'label': 'Edit the address' }) }}
+            </div>
+            {{ form_rest(form) }}
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <script type="text/javascript">
+        $(function () {
+            var this_year = (new Date).getFullYear();
+            $('#address_birthDay').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                minYear: 1900,
+                maxYear: this_year - 13
+            });
+
+        });
+    </script>
+{% endblock %}
+
+{% block css %}
+    <style>
+        .address_picture {
+            max-width: 100%;
+            max-height: 100px;
+            margin-left: auto;
+            margin-right: 0;
+            display: block;
+        }
+        .delete_picture {
+            margin-left: auto;
+            margin-right: 0;
+            width: 70px;
+            color: red;
+}
+        }
+    </style>
+{% endblock %}
+

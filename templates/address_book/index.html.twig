@@ -11,17 +11,17 @@
             </div>
         {% endfor %}
 
-        <table class="table table-striped table-bordered" >
+        <table id="addresses_list" class="table table-striped table-bordered" >
             <thead>
             <tr>
                 <th >Picture</th>
-                <th >Firstname</th>
-                <th >Lastname</th>
+                <th >First name</th>
+                <th >Last name</th>
                 <th >Street & N°.</th>
                 <th >Zip</th>
                 <th >City</th>
                 <th >Country</th>
-                <th >Phonenumber</th>
+                <th >Phone number</th>
                 <th >Birthday</th>
                 <th >Email</th>
                 <th >Actions</th>
@@ -32,7 +32,7 @@
             <tr>
                 <td>
                     {% if address.picture != '' %}
-                    <img src="{{ asset('pictures/' ~ address.picture) }}" class="img-fluid">
+                    <img src="{{ asset('pictures/' ~ address.picture) }}" class="address_picture">
                     {% else %}
                         <img src="{{ 'https://ui-avatars.com/api/?background=343a40&color=fff&name=' ~ address.firstname ~ '+' ~ address.lastname }}" >
                     {% endif %}
@@ -75,6 +75,21 @@
         .address_actions a, .address_actions button{
             padding: 7px;
             font-size: 10px;
+        }
+        .address_picture {
+            display: block;
+            margin: 0 auto;
+            max-width: 100px;
+            max-height: 100px;
+        }
+        #addresses_list{
+            /*table-layout: fixed;*/
+        }
+        #addresses_list td{
+            vertical-align: middle;
+            max-width: 100px;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
     </style>
 {% endblock %}
