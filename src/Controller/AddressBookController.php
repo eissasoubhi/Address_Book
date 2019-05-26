@@ -55,7 +55,15 @@ class AddressBookController extends Controller
     public function create(Request $request)
     {
         $address = new Address();
-
+        $address->setBirthday('01/01/2010');
+        $address->setFirstname('gkjhbj');
+        $address->setLastname('gkjhbj');
+        $address->setPhoneNumber('76890678');
+        $address->setStreetnumber('fghkjhghgv');
+        $address->setCity('Casa');
+        $address->setCountry('Maroc');
+        $address->setZip(76890);
+        $address->setEmail(time().'.test@mail.com');
         $form = $this->createForm(AddressType::class, $address);
         $form->handleRequest($request);
 
@@ -90,7 +98,7 @@ class AddressBookController extends Controller
                 'New address saved successfully!'
             );
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('create_address');
         }
 
         return $this->render('address_book/create.html.twig', [

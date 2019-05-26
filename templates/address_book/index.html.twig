@@ -48,7 +48,10 @@
                 <td>{{ address.email }}</td>
                 <td class="address_actions">
                     <a class="btn btn-primary" href="/edit/{{ address.id }}"><i class="fa fa-edit"></i></a>
-                    {{ form_start(delete_address_form, {action: path('delete_address', {id: address.id })}) }}
+                    {{ form_start(delete_address_form, {
+                        action: path('delete_address', {id: address.id }),
+                        attr: { class: 'delete_address_form'}
+                    }) }}
                         {{ form_widget(delete_address_form.id) }}
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-trash-alt"></i>
@@ -60,7 +63,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <div >
+        <div id="pagination" class="mt-5 text-center">
             {{ knp_pagination_render(addresses) }}
         </div>
     </div>
@@ -91,5 +94,21 @@
             text-overflow: ellipsis;
             overflow: hidden;
         }
+        #pagination nav {
+            display: inline-block;
+        }
     </style>
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+    <script>
+        $('.delete_address_form').on('submit', function (event) {
+            if (confirm("Are you sure want to delete?")) {
+                return true;
+            }
+
+            return false;
+        });
+    </script>
 {% endblock %}

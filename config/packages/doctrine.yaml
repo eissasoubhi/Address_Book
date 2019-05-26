@@ -27,3 +27,11 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+
+
+
+# KNP Pagination
+knp_paginator:
+    page_range: 5
+    template:
+        pagination: '@KnpPaginator/Pagination/twitter_bootstrap_v4_pagination.html.twig'     # sliding pagination controls template
