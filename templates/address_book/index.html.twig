@@ -48,7 +48,13 @@
                 <td>{{ address.email }}</td>
                 <td class="address_actions">
                     <a class="btn btn-primary" href="/edit/{{ address.id }}"><i class="fa fa-edit"></i></a>
-                    <a class="btn btn-danger" href="/delete/{{ address.id }}"><i class="fas fa-trash-alt"></i></a>
+                    {{ form_start(delete_address_form, {action: path('delete_address', {id: address.id })}) }}
+                        {{ form_widget(delete_address_form.id) }}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        {{ form_rest(delete_address_form) }}
+                    {{ form_end(delete_address_form) }}
                 </td>
             </tr>
             {% endfor %}
@@ -63,8 +69,12 @@
 {% block css %}
     {{ parent() }}
     <style>
-        .address_actions a{
+        .address_actions form{
+            display: inline-block;
+        }
+        .address_actions a, .address_actions button{
             padding: 7px;
-            font-size: 10px;        }
+            font-size: 10px;
+        }
     </style>
 {% endblock %}

@@ -40,7 +40,7 @@ class Address
      *     minWidth = 50,
      *     minHeight = 50,
      *     mimeTypes = {"image/png", "image/jpg", "image/jpeg"},
-     *     maxSize = "1024k",
+     *     maxSize = "1M",
      * )
      */
     private $picture;

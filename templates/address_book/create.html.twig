@@ -14,7 +14,6 @@
                     <div class="form-group">
                         {{ form_label(form.picture) }}
                         {{ form_widget(form.picture) }}
-                        {{ form_errors(form.picture) }}
                         <small class="form-text text-muted">
                             Allowed fotrmats are jpg,jpeg and png. and maximum size is 1Mb.
                         </small>
@@ -49,7 +48,7 @@
     <script type="text/javascript">
         $(function () {
             var this_year = (new Date).getFullYear();
-            $('#form_birthDay').daterangepicker({
+            $('#address_birthDay').daterangepicker({
                 singleDatePicker: true,
                 showDropdowns: true,
                 startDate: '01/01/'+ (this_year - 20),
