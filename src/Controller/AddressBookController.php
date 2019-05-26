@@ -4,23 +4,30 @@ namespace App\Controller;
 
 use App\Entity\Address;
 use App\Form\AddressType;
+use App\Service\AddressService;
+use App\Repository\AddressRepository;
+use Doctrine\ORM\EntityManagerInterface ;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Form as FormBuilder;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\AddressRepository as AddressRepo;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Doctrine\ORM\EntityManagerInterface as EMInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class AddressBookController extends Controller
 {
-    public function __construct(AddressRepo $address_repo, EMInterface $em, Filesystem $fileSystem)
+    public function __construct(
+        Filesystem $fileSystem,
+        EntityManagerInterface $em,
+        AddressRepository $address_repo,
+        AddressService $address_service
+    )
     {
         $this->em = $em;
         $this->fileSystem = $fileSystem;
         $this->address_repo = $address_repo;
+        $this->address_service = $address_service;
     }
 
     /**
@@ -31,11 +38,11 @@ class AddressBookController extends Controller
         $page = $request->get('page', 1);
         $paginator = $this->get('knp_paginator');
         $address = new Address();
-
+        // address delete button
         $delete_address_form = $this->createFormBuilder($address)
             ->add('id', HiddenType::class)
             ->getForm();
-
+        // show last added addresses at the top
         $all_addresss = $this->address_repo->findAllOrderBy('DESC');
 
         $addresses = $paginator->paginate(
@@ -55,35 +62,20 @@ class AddressBookController extends Controller
     public function create(Request $request)
     {
         $address = new Address();
-        $address->setBirthday('01/01/2010');
-        $address->setFirstname('gkjhbj');
-        $address->setLastname('gkjhbj');
-        $address->setPhoneNumber('76890678');
-        $address->setStreetnumber('fghkjhghgv');
-        $address->setCity('Casa');
-        $address->setCountry('Maroc');
-        $address->setZip(76890);
-        $address->setEmail(time().'.test@mail.com');
         $form = $this->createForm(AddressType::class, $address);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $address = $form->getData();
-
+            // if a picture was uploaded
             if ($picture_file = $form->get('picture')->getData()) {
-                $file_name = md5(uniqid()).'.'.$picture_file->guessExtension();
-
                 try {
-                    $picture_file->move(
-                        $this->getParameter('pictures_directory'),
-                        $file_name
-                    );
+                    $file_name = $this->address_service->uploadPicture($picture_file);
                 } catch (FileException $e) {
                     $this->addFlash(
                         'error',
-                        'An error occurred while upload the image!'
+                        $e->getMessage()
                     );
-
                     return $this->redirectToRoute('home');
                 }
 
@@ -98,7 +90,7 @@ class AddressBookController extends Controller
                 'New address saved successfully!'
             );
 
-            return $this->redirectToRoute('create_address');
+            return $this->redirectToRoute('home');
         }
 
         return $this->render('address_book/create.html.twig', [
@@ -112,50 +104,28 @@ class AddressBookController extends Controller
     public function edit(Address $address, Request $request)
     {
         $form = $this->createForm(AddressType::class, $address);
-
+        // save the old address, the order is important
         $old_address = clone $address;
-
         $form->handleRequest($request);
-
         $updated_address = $address;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $updated_address = $form->getData();
-            // dump($old_address->getPicture());die();
-            if ( ! $request->get('delete_picture', false)) {
-                $updated_address->setPicture($old_address->getPicture());
-            } else {
-                $updated_address->setPicture(null);
-
-                $old_picture = $this->getParameter('pictures_directory') . $old_address->getPicture();
-                if ($old_address->getPicture() && $this->fileSystem->exists($old_picture)) {
-                    $this->fileSystem->remove(array($old_picture));
-                }
-            }
-
+            $this->address_service->handlePictureInDb($request, $updated_address, $old_address);
+            // if the picture was uploaded
             if ($picture_file = $form->get('picture')->getData()) {
-
-                $file_name = md5(uniqid()).'.'.$picture_file->guessExtension();
-
                 try {
-                    $picture_file->move(
-                        $this->getParameter('pictures_directory'),
-                        $file_name
-                    );
+                    $file_name = $this->address_service->uploadPicture($picture_file);
                 } catch (FileException $e) {
                     $this->addFlash(
                         'error',
-                        'An error occurred while upload the image!'
+                        $e->getMessage()
                     );
-
                     return $this->redirectToRoute('home');
                 }
 
-                $old_picture = $this->getParameter('pictures_directory') . $old_address->getPicture();
-                if ($old_address->getPicture() && $this->fileSystem->exists($old_picture)) {
-                    $this->fileSystem->remove(array($old_picture));
-                }
-
+                 // if the picture is deleted from the database, we delete it from the pictures folder too
+                $this->address_service->deletePictureFromFolder($old_address);
                 $updated_address->setPicture($file_name);
             }
 
