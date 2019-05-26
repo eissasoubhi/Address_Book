@@ -1,72 +1,62 @@
 {% extends 'base.html.twig' %}
 
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
 {% block body %}
     <div class="container">
         <h1>New address</h1>
-        <form id="new_address" class="mt-4" action="{{ path('save_address') }}" enctype="multipart/form-data" method="POST">
+        {{ form_start(form, {
+            attr: {'class': 'mt-4'}
+        }) }}
+            {{ form_errors(form) }}
             <div class="row">
                 <div class="col-6">
                     <div class="form-group">
-                        <label for="exampleInputFile">Picture</label>
-                        <input type="file" name="image" class="form-control-file" accept="image/*">
-                        <small class="form-text text-muted">Allowed fotrmats are jpg,jpeg and png </small>
+                        {{ form_label(form.picture) }}
+                        {{ form_widget(form.picture) }}
+                        {{ form_errors(form.picture) }}
+                        <small class="form-text text-muted">
+                            Allowed fotrmats are jpg,jpeg and png. and maximum size is 1Mb.
+                        </small>
                     </div>
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" name="firstname" id="firstname"  placeholder="Enter your first Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" name="lastname" id="lastName"  placeholder="Enter your last Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Street Number</label>
-                        <input type="number" class="form-control" name="streetnumber" id="streetNumber"  placeholder="Enter your street number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Zip</label>
-                        <input type="text" class="form-control" name="zip" id="zip"  placeholder="Enter your zip code" required>
-                    </div>
+                    {{ form_row(form.firstname) }}
+                    {{ form_row(form.lastname) }}
+                    {{ form_row(form.streetnumber) }}
+                    {{ form_row(form.city) }}
                 </div>
                 <div class="col-6">
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" class="form-control" name="city" id="city"  placeholder="Enter your city name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="text" class="form-control" name="phonenumber" id="phonenumber"  id="phoneNumber" placeholder="Enter your phone number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Birth Day</label>
-                        <input type="text" class="form-control" name="birthday" id="birthDay" placeholder="Select your birth day" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email address</label>
-                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Country</label>
-                        <input type="text" class="form-control" name="country" id="country" placeholder="Enter Country Name" required>
-                    </div>
+                    {{ form_row(form.zip) }}
+                    {{ form_row(form.country) }}
+                    {{ form_row(form.phonenumber) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.birthDay) }}
                 </div>
             </div>
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-success">Add to the address book</button>
+                {{ form_row(form.save, { 'label': 'Add to the address book' }) }}
             </div>
-        </form>
+            {{ form_rest(form) }}
+        {{ form_end(form) }}
     </div>
 {% endblock %}
 
 {% block js %}
     {{ parent() }}
-    <script type="text/javascript" src="{{ asset('bower_components/moment/min/moment.min.js') }}" ></script>
-    <script type="text/javascript" src="{{ asset('bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <script type="text/javascript">
         $(function () {
-            $('#birthday').datetimepicker();
+            var this_year = (new Date).getFullYear();
+            $('#form_birthDay').daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                startDate: '01/01/'+ (this_year - 20),
+                minYear: 1900,
+                maxYear: this_year - 13
+            });
+
         });
     </script>
 {% endblock %}

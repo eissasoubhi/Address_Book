@@ -7,8 +7,17 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <title>Address Book</title>
 
+    <style>
+      @media (min-width: 1200px){
+      .container {
+         max-width: 1200px!important;
+      }
+    }
+    </style>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" >
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {% block css %}
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     {% endblock %}
 
   </head>
@@ -16,11 +25,9 @@
 
 <main role="main" class="flex-shrink-0">
   {% include 'partials/menu.html.twig' %}
-  <div class="container">
-    {% block body %}
+  {% block body %}
 
-    {% endblock %}
-  </div>
+  {% endblock %}
 </main>
 
 <footer class="footer mt-auto py-3">
@@ -30,7 +37,7 @@
 </footer>
 
 {% block js %}
-  <script type="text/javascript" src="{{ asset('bower_components/jquery/jquery.min.js') }}"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
 {% endblock %}
 
 </body>

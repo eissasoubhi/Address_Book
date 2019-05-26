@@ -4,15 +4,23 @@ namespace App\Controller;
 
 use App\Entity\Address;
 use App\Repository\AddressRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Form as FormBuilder;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class AddressBookController extends Controller
 {
-    public function __construct(AddressRepository $addresse_repo)
+    public function __construct(AddressRepository $addresse_repo, EntityManagerInterface $em)
     {
         $this->addresse_repo = $addresse_repo;
+        $this->em = $em;
     }
 
     /**
@@ -38,31 +46,46 @@ class AddressBookController extends Controller
     /**
      * @Route("/create", name="create_address")
      */
-    public function create()
-    {
-        return $this->render('address_book/create.html.twig');
-    }
-
-    /**
-     * @Route("/save", name="save_address" )
-     */
-    public function save(Request $request)
+    public function create(Request $request)
     {
         $address = new Address();
 
-        $address->setZip($request->get('zip'))
-                ->setCity($request->get('city'))
-                ->setEmail($request->get('email'))
-                ->setCountry($request->get('country'))
-                ->setBirthDay($request->get('birthday'))
-                ->setLastname($request->get('lastname'))
-                ->setFirstname($request->get('firstname'))
-                ->setPhonenumber($request->get('phonenumber'))
-                ->setStreetnumber($request->get('streetnumber'));
+        $form = $this->createAddressForm($address);
+        $form->handleRequest($request);
 
-        // Dump($address);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $addresse = $form->getData();
 
-        $this->entityManager->persist($address);
-        $this->entityManager->flush();
+            $this->em->persist($address);
+            $this->em->flush();
+
+            $this->addFlash(
+                'success',
+                'Saved successfully!'
+            );
+
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('address_book/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    protected function createAddressForm(Address $address): FormBuilder
+    {
+        return  $this->createFormBuilder($address)
+        ->add('picture', FileType::class, ['required' => false ])
+        ->add('firstname', TextType::class)
+        ->add('lastname', TextType::class)
+        ->add('streetnumber', TextType::class, ['label' => 'Street and number'])
+        ->add('zip', IntegerType::class)
+        ->add('city', TextType::class)
+        ->add('phonenumber', TextType::class)
+        ->add('birthDay', TextType::class)
+        ->add('email', TextType::class)
+        ->add('country', TextType::class)
+        ->add('save', SubmitType::class, ['label' => 'Create Address'])
+        ->getForm();
     }
 }

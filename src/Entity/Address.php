@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AddressRepository")
+ * @UniqueEntity("email")
  */
 class Address
 {
@@ -18,51 +21,78 @@ class Address
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     *
+     * @Assert\Image(
+     *     minWidth = 50,
+     *     minHeight = 50,
+     *     mimeTypes = {"image/png", "image/jpg", "image/jpeg"},
+     *     maxSize = "1024k",
+     * )
      */
     private $picture;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $streetnumber;
 
     /**
      * @ORM\Column(type="integer")
+     *
+     * @Assert\NotBlank
+     * @Assert\Type("integer")
      */
     private $zip;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $city;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $country;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $phonenumber;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
      */
     private $birthday;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
+     * @Assert\NotBlank
+     * @Assert\Email
      */
     private $email;
 
@@ -107,12 +137,12 @@ class Address
         return $this;
     }
 
-    public function getStreetnumber(): ?int
+    public function getStreetnumber(): ?string
     {
         return $this->streetnumber;
     }
 
-    public function setStreetnumber(int $streetnumber): self
+    public function setStreetnumber(string $streetnumber): self
     {
         $this->streetnumber = $streetnumber;
 
