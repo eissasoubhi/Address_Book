@@ -14,12 +14,19 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class AddressRepository extends ServiceEntityRepository
 {
+    /**
+     * @param Symfony\Bridge\Doctrine\RegistryInterface $registry
+     */
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Address::class);
     }
 
-    public function findAllOrderBy($order_by)
+    /**
+     * @param string $order_by MYSQL order by value, ASC or DESC
+     * @return array
+     */
+    public function findAllOrderBy(string $order_by): array
     {
         return $this->findBy(array(), array('id' => $order_by));
     }

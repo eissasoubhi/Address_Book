@@ -5,11 +5,8 @@
         <h1 >All addresse books</h1>
         <a href="{{ path('create_address') }}" class="btn btn-success mb-4 float-right">Add new address</a>
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success" style="margin-top: 60px;" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
+        {% include 'partials/success.html.twig' %}
+        {% include 'partials/error.html.twig' %}
 
         <table id="addresses_list" class="table table-striped table-bordered" >
             <thead>
@@ -48,16 +45,12 @@
                 <td>{{ address.email }}</td>
                 <td class="address_actions">
                     <a class="btn btn-primary" href="/edit/{{ address.id }}"><i class="fa fa-edit"></i></a>
-                    {{ form_start(delete_address_form, {
-                        action: path('delete_address', {id: address.id }),
-                        attr: { class: 'delete_address_form'}
-                    }) }}
-                        {{ form_widget(delete_address_form.id) }}
+                    <form action="{{ path('delete_address', {id: address.id }) }}" method="post" class="delete_address_form">
+                        <input type="hidden" name="token" value="{{ csrf_token('delete-address') }}"/>
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-trash-alt"></i>
                         </button>
-                        {{ form_rest(delete_address_form) }}
-                    {{ form_end(delete_address_form) }}
+                    </form>
                 </td>
             </tr>
             {% endfor %}

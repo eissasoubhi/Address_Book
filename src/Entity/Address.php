@@ -16,6 +16,8 @@ class Address
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     *
+     * @var int
      */
     private $id;
 
@@ -23,6 +25,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $firstname;
 
@@ -30,6 +34,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $lastname;
 
@@ -42,6 +48,8 @@ class Address
      *     mimeTypes = {"image/png", "image/jpg", "image/jpeg"},
      *     maxSize = "1M",
      * )
+     *
+     * @var string
      */
     private $picture;
 
@@ -49,6 +57,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string street and number
      */
     private $streetnumber;
 
@@ -57,6 +67,8 @@ class Address
      *
      * @Assert\NotBlank
      * @Assert\Type("integer")
+     *
+     * @var integer
      */
     private $zip;
 
@@ -64,6 +76,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $city;
 
@@ -71,6 +85,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $country;
 
@@ -78,6 +94,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $phonenumber;
 
@@ -85,6 +103,8 @@ class Address
      * @ORM\Column(type="string", length=255)
      *
      * @Assert\NotBlank
+     *
+     * @var string
      */
     private $birthday;
 
@@ -93,19 +113,31 @@ class Address
      *
      * @Assert\NotBlank
      * @Assert\Email
+     *
+     * @var string
      */
     private $email;
 
+    /**
+     * @return int
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string
+     */
     public function getFirstname(): ?string
     {
         return $this->firstname;
     }
 
+    /**
+     * @param string $firstname
+     * @return App\Entity\Address
+     */
     public function setFirstname(string $firstname): self
     {
         $this->firstname = $firstname;
@@ -113,11 +145,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getLastname(): ?string
     {
         return $this->lastname;
     }
 
+    /**
+     * @param string $lastname
+     * @return App\Entity\Address
+     */
     public function setLastname(string $lastname): self
     {
         $this->lastname = $lastname;
@@ -125,11 +164,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getPicture(): ?string
     {
         return $this->picture;
     }
 
+    /**
+     * @param string $picture
+     * @return App\Entity\Address
+     */
     public function setPicture(?string $picture): self
     {
         $this->picture = $picture;
@@ -137,11 +183,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getStreetnumber(): ?string
     {
         return $this->streetnumber;
     }
 
+    /**
+     * @param string $streetnumber
+     * @return App\Entity\Address
+     */
     public function setStreetnumber(string $streetnumber): self
     {
         $this->streetnumber = $streetnumber;
@@ -149,11 +202,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getZip(): ?int
     {
         return $this->zip;
     }
 
+    /**
+     * @param string $zip
+     * @return App\Entity\Address
+     */
     public function setZip(int $zip): self
     {
         $this->zip = $zip;
@@ -161,11 +221,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getCity(): ?string
     {
         return $this->city;
     }
 
+    /**
+     * @param string $city
+     * @return App\Entity\Address
+     */
     public function setCity(string $city): self
     {
         $this->city = $city;
@@ -173,11 +240,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getCountry(): ?string
     {
         return $this->country;
     }
 
+    /**
+     * @param string $country
+     * @return App\Entity\Address
+     */
     public function setCountry(string $country): self
     {
         $this->country = $country;
@@ -185,11 +259,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getPhonenumber(): ?string
     {
         return $this->phonenumber;
     }
 
+    /**
+     * @param string $phonenumber
+     * @return App\Entity\Address
+     */
     public function setPhonenumber(string $phonenumber): self
     {
         $this->phonenumber = $phonenumber;
@@ -197,11 +278,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getBirthday(): ?string
     {
         return $this->birthday;
     }
 
+    /**
+     * @param string $birthday
+     * @return App\Entity\Address
+     */
     public function setBirthday(string $birthday): self
     {
         $this->birthday = $birthday;
@@ -209,11 +297,18 @@ class Address
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * @param string $email
+     * @return App\Entity\Address
+     */
     public function setEmail(string $email): self
     {
         $this->email = $email;

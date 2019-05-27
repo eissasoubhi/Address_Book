@@ -13,6 +13,10 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class AddressType extends AbstractType
 {
+    /**
+     * @param Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('picture', FileType::class, ['required' => false, 'data_class' => null ])
@@ -29,6 +33,9 @@ class AddressType extends AbstractType
         ->getForm();
     }
 
+    /**
+     * @param Symfony\Component\OptionsResolver\OptionsResolver $resolver
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

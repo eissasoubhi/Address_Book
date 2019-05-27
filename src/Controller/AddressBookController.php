@@ -17,6 +17,33 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class AddressBookController extends Controller
 {
+
+    /**
+     * @var Symfony\Component\Filesystem\Filesystem
+     */
+    protected $fileSystem;
+
+    /**
+     * @var Doctrine\ORM\EntityManagerInterface entity manager
+     */
+    protected $em;
+
+    /**
+     * @var App\Repository\AddressRepository
+     */
+    protected $address_repo;
+
+    /**
+     * @var App\Service\AddressService
+     */
+    protected $address_service;
+
+    /**
+     *  @param Symfony\Component\Filesystem\Filesystem $fileSystem
+     *  @param Doctrine\ORM\EntityManagerInterface $em
+     *  @param App\Repository\AddressRepository $address_repo
+     *  @param App\Service\AddressService $address_service
+     */
     public function __construct(
         Filesystem $fileSystem,
         EntityManagerInterface $em,
@@ -32,17 +59,15 @@ class AddressBookController extends Controller
 
     /**
      * @Route("/", name="home")
+     *
+     * @param Symfony\Component\HttpFoundation\Request $request
      */
     public function index(Request $request)
     {
         $page = $request->get('page', 1);
         $paginator = $this->get('knp_paginator');
-        $address = new Address();
-        // address delete button
-        $delete_address_form = $this->createFormBuilder($address)
-            ->add('id', HiddenType::class)
-            ->getForm();
-        // show last added addresses at the top
+
+        // get last added addresses at the top
         $all_addresss = $this->address_repo->findAllOrderBy('DESC');
 
         $addresses = $paginator->paginate(
@@ -51,13 +76,14 @@ class AddressBookController extends Controller
         );
 
         return $this->render('address_book/index.html.twig', [
-            'addresses' => $addresses,
-            'delete_address_form' => $delete_address_form->createView()
+            'addresses' => $addresses
         ]);
     }
 
     /**
      * @Route("/create", name="create_address")
+     *
+     * @param Symfony\Component\HttpFoundation\Request $request
      */
     public function create(Request $request)
     {
@@ -67,28 +93,23 @@ class AddressBookController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $address = $form->getData();
-            // if a picture was uploaded
-            if ($picture_file = $form->get('picture')->getData()) {
-                try {
-                    $file_name = $this->address_service->uploadPicture($picture_file);
-                } catch (FileException $e) {
-                    $this->addFlash(
-                        'error',
-                        $e->getMessage()
-                    );
-                    return $this->redirectToRoute('home');
-                }
+            $picture = $form->get('picture')->getData();
 
-                $address->setPicture($file_name);
+            try {
+                // if the picture was uploaded
+                if ($picture) {
+                    $address = $this->address_service->savePictureToAddress($picture, $address);
+                }
+            } catch (FileException $e) {
+                $this->addFlash('error', $e->getMessage());
+
+                return $this->redirectToRoute('home');
             }
 
             $this->em->persist($address);
             $this->em->flush();
 
-            $this->addFlash(
-                'success',
-                'New address saved successfully!'
-            );
+            $this->addFlash('success', 'New address saved successfully!');
 
             return $this->redirectToRoute('home');
         }
@@ -100,73 +121,81 @@ class AddressBookController extends Controller
 
     /**
      * @Route("/edit/{id}", name="edit_address")
+     *
+     * @param App\Entity\Address $address
+     * @param Symfony\Component\HttpFoundation\Request $request
      */
     public function edit(Address $address, Request $request)
     {
         $form = $this->createForm(AddressType::class, $address);
-        // save the old address, the order is important
+        // save the old address data, the order is important
         $old_address = clone $address;
         $form->handleRequest($request);
-        $updated_address = $address;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $updated_address = $form->getData();
-            $this->address_service->handlePictureInDb($request, $updated_address, $old_address);
-            // if the picture was uploaded
-            if ($picture_file = $form->get('picture')->getData()) {
-                try {
-                    $file_name = $this->address_service->uploadPicture($picture_file);
-                } catch (FileException $e) {
-                    $this->addFlash(
-                        'error',
-                        $e->getMessage()
-                    );
-                    return $this->redirectToRoute('home');
-                }
+            $edited_address = $form->getData();
+            // whether we keep or delete the address picture
+            $edited_address = $this->address_service->handleAddressPicture($request, $edited_address, $old_address);
+            $picture = $form->get('picture')->getData();
 
-                 // if the picture is deleted from the database, we delete it from the pictures folder too
-                $this->address_service->deletePictureFromFolder($old_address);
-                $updated_address->setPicture($file_name);
+            try {
+                if ($picture) {
+                    // we update the address picture if it was uploaded
+                    $this->address_service->updateAddressPicture($edited_address, $picture);
+                    // then we delete the old picture from the pictures folder
+                    $this->address_service->deleteAdressPicture($old_address);
+                }
+            } catch (FileException $e) {
+                $this->addFlash('error', $e->getMessage());
+
+                return $this->redirectToRoute('home');
             }
 
-            $this->em->persist($updated_address);
+            $this->em->persist($edited_address);
             $this->em->flush();
 
-            $this->addFlash(
-                'success',
-                'The address is updated successfully!'
-            );
+            $this->addFlash('success', 'The address is updated successfully!');
 
             return $this->redirectToRoute('home');
         }
 
         return $this->render('address_book/edit.html.twig', [
             'form' => $form->createView(),
-            'address' => $updated_address
+            'address' => $edited_address ?? $address
         ]);
     }
 
     /**
      * @Route("/delete/{id}", name="delete_address", methods={"POST"})
+     *
+     * @param App\Entity\Address $address
+     * @param Symfony\Component\HttpFoundation\Request $request
      */
-    public function delete(Address $address)
+    public function delete(Address $address, Request $request)
     {
-        $picture = $this->getParameter('pictures_directory') . $address->getPicture();
-
         if (empty($address)) {
             $this->addFlash('error', 'The address is not found!');
+
             return $this->redirectToRoute('home');
         }
 
-        $this->em->remove($address);
-        $this->em->flush();
+        $submittedToken = $request->request->get('token');
 
-        if( ! empty($address->getPicture()) && $this->fileSystem->exists($picture)) {
-            $this->fileSystem->remove(array($picture));
+        // 'delete-address' is the same value used in the template to generate the token
+        if ($this->isCsrfTokenValid('delete-address', $submittedToken)) {
+
+            $this->em->remove($address);
+            $this->em->flush();
+            $this->address_service->deleteAdressPicture($address);
+
+            $this->addFlash('success', 'The address is deleted!');
+
+            return $this->redirectToRoute('home');
+        } else {
+
+            $this->addFlash('error', 'Invalid token!');
+
+            return $this->redirectToRoute('home');
         }
-
-        $this->addFlash('success', 'The address is removed!');
-
-        return $this->redirectToRoute('home');
     }
 }
