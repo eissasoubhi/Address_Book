@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This repository is a simple test for a job application that represents an address book which we can add, edit and delete entries. we
+This repository is a simple test for a job application that represents an address book where we can add, edit and delete entries. we
 also have an overview of all contacts.
 
 The address book contains the following data:
